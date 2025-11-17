@@ -2,33 +2,62 @@ const fs = require('fs');
 const path = require('path');
 const config = require('../config/app.config');
 
+const watchFolders = ['commands', 'config'];
 let commands = {};
-const commandsPath = path.join(__dirname, '../commands');
+const watchers = {};
 
-function loadCommands() {
+function loadCommands(logLoad = true) {
     commands = {};
-    const files = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
 
-    for (const file of files) {
-        delete require.cache[require.resolve(`../commands/${file}`)];
-        const cmd = require(`../commands/${file}`);
-        commands[cmd.name] = cmd;
-    }
+    for (const folder of watchFolders) {
+        const folderPath = path.join(__dirname, `../${folder}`);
+        if (!fs.existsSync(folderPath)) continue;
 
-    if (config.logger.logCommands) {
-        console.log(`Loaded commands: ${Object.keys(commands).join(', ')}`);
+        const files = fs.readdirSync(folderPath).filter(f => f.endsWith('.js'));
+
+        for (const file of files) {
+            const fullPath = path.join(folderPath, file);
+            delete require.cache[require.resolve(fullPath)];
+            const cmd = require(fullPath);
+
+            const key = folder === 'commands' ? cmd.name : path.basename(file, '.js');
+            commands[key] = cmd;
+        }
+
+        if (logLoad && config.logger.logCommands) {
+            console.log(`Loaded ${folder}: ${files.map(f => f.replace('.js','')).join(', ')}`);
+        }
     }
 
     return commands;
 }
 
-fs.watch(commandsPath, (eventType, filename) => {
-    if (filename && filename.endsWith('.js')) {
-        if (config.logger.logCommands) {
-            console.log(`Detected command change: ${filename}. Reloading commands...`);
-        }
-        loadCommands();
-    }
-});
+loadCommands(true);
 
-module.exports = { loadCommands, getCommands: () => commands };
+setTimeout(() => {
+    for (const folder of watchFolders) {
+        const folderPath = path.join(__dirname, `../${folder}`);
+        if (!fs.existsSync(folderPath)) continue;
+
+        fs.watch(folderPath, (eventType, filename) => {
+            if (!filename || !filename.endsWith('.js')) return;
+
+            const key = `${folder}/${filename}`;
+            if (watchers[key]) clearTimeout(watchers[key]);
+
+            watchers[key] = setTimeout(() => {
+                if (config.logger.logCommands) {
+                    console.log(`Detected change in ${folder}: ${filename}. Reloading...`);
+                }
+                loadCommands(false);
+                delete watchers[key];
+            }, 100);
+        });
+    }
+}, 500);
+
+function getCommands() {
+    return commands;
+}
+
+module.exports = { loadCommands, getCommands };
