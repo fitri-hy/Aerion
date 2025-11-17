@@ -45,6 +45,6 @@ module.exports = {
             enabled: false,                 		// Enable/disable Cooldown
             duration: 3								// Cooldown duration per command (s)
         },
-        contextAware: 'both',						// Bot response private|group|both
+        contextAware: 'both',						// Bot global response private|group|both
     }
 };

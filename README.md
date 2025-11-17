@@ -15,6 +15,8 @@ Aerion is a WhatsApp bot built using Node.js. This bot can **automatically respo
 * Full Event Management (chat updates, contact updates, message reactions, etc.)
 * Auto Watch Commands
 * Admin Roles
+* Context Aware Types
+* Cooldown System
 
 ## 💬 Supported Message Types
 
