@@ -44,6 +44,7 @@ module.exports = {
         cooldown: {                        			// Cooldown / Anti-Spam
             enabled: false,                 		// Enable/disable Cooldown
             duration: 3								// Cooldown duration per command (s)
-        }
+        },
+        contextAware: 'both',						// Bot response private|group|both
     }
 };

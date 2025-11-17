@@ -1,8 +1,14 @@
 module.exports = {
-    /* optional, custom prefix & Admin Access
+    /* Optional
 	
+	// custom prefix
 	prefix: ['#', '.'],
+	
+	// Admin Access true/false
 	admin: true,
+	
+	// Bot response private|group|both
+    context: 'private',
 	
     */
 	

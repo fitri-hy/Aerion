@@ -22,12 +22,21 @@ function getPrefix(text, command) {
     return null;
 }
 
+function getChatType(jid) {
+    if (!jid) return 'unknown';
+    if (jid.endsWith('@g.us')) return 'group';
+    return 'private';
+}
+
 async function handleMessage(client, commands, msg) {
     if (!msg.message) return;
 
     const text = msg.message?.conversation 
         || msg.message?.extendedTextMessage?.text;
     if (!text) return;
+	
+    const chatType = getChatType(msg.key.remoteJid);
+    const defaultContext = config.features.contextAware || 'both';
 
     for (const key in commands) {
         const command = commands[key];
@@ -38,6 +47,15 @@ async function handleMessage(client, commands, msg) {
         const commandName = args.shift().toLowerCase();
 
         if (command.name === commandName) {
+
+            const context = command.context || globalContext;
+            if (context !== 'both' && context !== chatType) {
+                if (config.logger.logCommands) {
+                    const senderName = msg.pushName || (msg.key.participant || msg.key.remoteJid.split('@')[0]);
+                    console.log(`Command ${commandName} cannot be used in ${chatType} by ${senderName}`);
+                }
+                break;
+            }
 			
 			let userId = msg.key.participant || msg.key.remoteJid;
 			if (userId.includes('@')) userId = userId.split('@')[0];
