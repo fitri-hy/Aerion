@@ -40,6 +40,10 @@ module.exports = {
     features: {
         pollUpdates: true,							// Enable poll aggregation
         historySync: true,							// Enable history & placeholder resync
-        requestPlaceholder: true					// Enable placeholder message handling
+        requestPlaceholder: true,					// Enable placeholder message handling                // Poll updates
+        cooldown: {                        			// Cooldown / Anti-Spam
+            enabled: false,                 		// Enable/disable Cooldown
+            duration: 3								// Cooldown duration per command (s)
+        }
     }
 };

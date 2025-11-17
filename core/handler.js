@@ -2,6 +2,7 @@ const config = require('../config/app.config');
 const { resolveMedia } = require('../utils/media');
 const { defaultContextInfo } = require('../utils/contextInfo');
 const { isAdmin } = require('../middlewares/adminMiddleware');
+const { checkCooldown, setCooldown, sendCooldownMessage } = require('../middlewares/cooldownMiddleware');
 
 function getPrefix(text, command) {
     if (!text) return null;
@@ -37,11 +38,30 @@ async function handleMessage(client, commands, msg) {
         const commandName = args.shift().toLowerCase();
 
         if (command.name === commandName) {
+			
+			let userId = msg.key.participant || msg.key.remoteJid;
+			if (userId.includes('@')) userId = userId.split('@')[0];
+	
 			if (command.admin && !isAdmin(msg)) {
 				if (config.logger.logCommands) {
 					console.log('Non-admin tries to run command:', commandName);
 				}
 				break;
+			}
+		
+			if (config.features.cooldown.enabled) {
+				const { checkCooldown, setCooldown, sendCooldownMessage } = require('../middlewares/cooldownMiddleware');
+				const remaining = checkCooldown(userId, commandName);
+				if (remaining > 0) {
+					if (config.logger.logCommands) {
+						const remainingSec = Math.ceil(remaining / 1000);
+						const userId = msg.key.participant || msg.key.remoteJid.split('@')[0];
+						const senderName = msg.pushName || userId;
+						console.log(`${senderName} Hit by cooldown: ${remainingSec}`);
+					}
+					break;
+				}
+				setCooldown(userId, commandName, config.features.cooldown.duration);
 			}
 			
             try {
