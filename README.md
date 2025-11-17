@@ -2,20 +2,20 @@
 
 # Aerion
 
-Aerion is a WhatsApp bot built using Node.js. This bot can automatically respond to messages, execute commands, and assist with specific tasks within WhatsApp.
+Aerion is a WhatsApp bot built using Node.js. This bot can **automatically respond to messages, execute commands**, and assist with various tasks on WhatsApp.
 
 ## 🚀 Key Features
 
 * Custom Command Prefix
 * QR Pairing / Code Pairing
 * Session Folder Management
-* Typing Effect
-* Custom Context Info
-* Logging
-* Event Management
+* Typing Effect when sending messages
+* Custom Context Info (thumbnail, title, body, media type)
+* Logging of messages, commands, and events
+* Full Event Management (chat updates, contact updates, message reactions, etc.)
 * Auto Watch Commands
 
-## 💬 Message Response
+## 💬 Supported Message Types
 
 * Text
 * Image
@@ -24,12 +24,22 @@ Aerion is a WhatsApp bot built using Node.js. This bot can automatically respond
 * Document
 * Location
 * Contact
-* Reply
+* Reaction
+* Quote
 
-## 🛠 Installation & Run
+## 🛠 Installation & Running the Bot
 
-1. Run `npm install`
-2. Start the bot using `npm start`
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Run the bot:
+
+```bash
+npm start
+```
 
 ## 📁 Project Structure
 
@@ -40,8 +50,10 @@ Aerion/
 │   ├── contact.js
 │   ├── ctx.js
 │   ├── docs.js
+│   ├── event.js
 │   ├── image.js
 │   ├── location.js
+│   ├── react.js
 │   ├── reply.js
 │   ├── text.js
 │   └── video.js

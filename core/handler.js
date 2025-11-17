@@ -14,32 +14,45 @@ async function handleMessage(client, commands, msg) {
 
     if (commands[commandName]) {
         try {
-			msg.send = async (message) => {
-				const options = {};
+            msg.send = async (message) => {
+                const options = {};
 
-				if (message.quote === true) {
-					options.quoted = msg;
-				}
+                if (message.quote === true) options.quoted = msg;
 
-				if (message.ctxInfo === true) {
-					message.contextInfo = defaultContextInfo();
-				}
+                if (message.ctxInfo === true) {
+                    message.contextInfo = defaultContextInfo(config.bot.ctxInfo);
+                }
 
-				if (message.mediaType && message.source) {
-					const media = await resolveMedia(message.mediaType, message.source);
-					await client.sendMessageOptionalTyping(
-						msg.key.remoteJid,
-						{ ...media, caption: message.caption || '', ...message },
-						options
-					);
-				} else {
-					await client.sendMessageOptionalTyping(
-						msg.key.remoteJid,
-						message,
-						options
-					);
-				}
-			};
+                if (message.react) {
+                    try {
+                        await client.sendMessage(msg.key.remoteJid, {
+                            react: {
+                                text: message.react,
+                                key: msg.key
+                            }
+                        });
+                    } catch (e) {
+                        console.error('Failed to send react:', e);
+                    }
+                    if (!message.text && !message.caption) return;
+                }
+
+                if (message.mediaType && message.source) {
+                    const media = await resolveMedia(message.mediaType, message.source);
+                    await client.sendMessageOptionalTyping(
+                        msg.key.remoteJid,
+                        { ...media, caption: message.caption || '', ...message },
+                        options
+                    );
+                } else {
+                    await client.sendMessageOptionalTyping(
+                        msg.key.remoteJid,
+                        message,
+                        options
+                    );
+                }
+            };
+
             await commands[commandName].execute(client, msg, args);
         } catch (e) {
             console.error(e);
