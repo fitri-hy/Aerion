@@ -1,5 +1,5 @@
 module.exports = {
-    prefix: '!',									// Command prefix for bot trigger
+    prefix: ['!', '/'],								// Command prefix for bot trigger
     usePairingCode: false,							// If true, login using pairing code
     sessionPath: 'sessions',						// Folder name for session data
     bot: {

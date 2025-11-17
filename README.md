@@ -6,7 +6,7 @@ Aerion is a WhatsApp bot built using Node.js. This bot can **automatically respo
 
 ## 🚀 Key Features
 
-* Custom Command Prefix
+* Multi & Custom Prefix
 * QR Pairing / Code Pairing
 * Session Folder Management
 * Typing Effect when sending messages

@@ -1,4 +1,9 @@
 module.exports = {
+    // optional, custom prefix can be an array or string
+	//
+	// prefix: ['#', '.'],
+    //
+	
     name: 'location',
     description: 'Send location',
     execute: async (client, msg, args) => {

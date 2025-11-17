@@ -1,6 +1,11 @@
 const path = require('path');
 
 module.exports = {
+    // optional, custom prefix can be an array or string
+	//
+	// prefix: ['#', '.'],
+    //
+	
     name: 'docs',
     description: 'Send documentation',
     execute: async (client, msg, args) => {
