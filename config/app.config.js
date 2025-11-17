@@ -2,6 +2,10 @@ module.exports = {
     prefix: ['!', '/'],								// Command prefix for bot trigger
     usePairingCode: false,							// If true, login using pairing code
     sessionPath: 'sessions',						// Folder name for session data
+    admins: [										// User who is admin
+		'6281234567890', 
+		'6280987654321'
+	],
     bot: {
         withTyping: true,							// Enable/disable typing status
         ctxInfo: {

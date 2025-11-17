@@ -1,10 +1,12 @@
 const config = require('../config/app.config');
 
 module.exports = {
-    // optional, custom prefix can be an array or string
-	//
-	// prefix: ['#', '.'],
-    //
+    /* optional, custom prefix & Admin Access
+	
+	prefix: ['#', '.'],
+	admin: true,
+	
+    */
 	
     name: 'event',
     description: 'Test all events',

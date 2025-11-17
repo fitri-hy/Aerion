@@ -1,6 +1,7 @@
 const config = require('../config/app.config');
 const { resolveMedia } = require('../utils/media');
 const { defaultContextInfo } = require('../utils/contextInfo');
+const { isAdmin } = require('../middlewares/adminMiddleware');
 
 function getPrefix(text, command) {
     if (!text) return null;
@@ -36,6 +37,13 @@ async function handleMessage(client, commands, msg) {
         const commandName = args.shift().toLowerCase();
 
         if (command.name === commandName) {
+			if (command.admin && !isAdmin(msg)) {
+				if (config.logger.logCommands) {
+					console.log('Non-admin tries to run command:', commandName);
+				}
+				break;
+			}
+			
             try {
                 msg.send = async (message) => {
                     const options = {};

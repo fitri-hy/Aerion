@@ -1,10 +1,12 @@
 const path = require('path');
 
 module.exports = {
-    // optional, custom prefix can be an array or string
-	//
-	// prefix: ['#', '.'],
-    //
+    /* optional, custom prefix & Admin Access
+	
+	prefix: ['#', '.'],
+	admin: true,
+	
+    */
 	
     name: 'audio',
     description: 'Send audio',

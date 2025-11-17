@@ -1,8 +1,10 @@
 module.exports = {
-    // optional, custom prefix can be an array or string
-	//
-	// prefix: ['#', '.'],
-    //
+    /* optional, custom prefix & Admin Access
+	
+	prefix: ['#', '.'],
+	admin: true,
+	
+    */
 	
     name: 'location',
     description: 'Send location',
