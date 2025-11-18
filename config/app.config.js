@@ -9,6 +9,11 @@ module.exports = {
     bot: {
         selfMode: false,							// Enable/disable Self mode
         withTyping: true,							// Enable/disable typing status
+		commandAccessControl: {
+			admin: false,							// bot only responds to admin
+			private: true,							// bot only responds in private chat
+			group: true,							// bot only responds in group chat
+		},
         ctxInfo: {
             title: '꧁✦AERION✦꧂',				// Title shown in context message
             body: 'Welcome to WhatsApp Bot!',		// Body text in context message
