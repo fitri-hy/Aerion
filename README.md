@@ -17,6 +17,7 @@ Aerion is a WhatsApp bot built using Node.js. This bot can **automatically respo
 * Admin Roles
 * Context Aware Types
 * Cooldown System
+* Command Scaffold Generator
 
 ## 💬 Supported Message Types
 
@@ -44,6 +45,12 @@ npm install
 npm start
 ```
 
+## 📦 Create Command Template
+
+```
+npm run create
+```
+
 ## 📁 Project Structure
 
 ```
@@ -67,6 +74,7 @@ Aerion/
 │   └── cppldownMiddleware.js
 ├── core/
 │   ├── client.js
+│   ├── commandGenerator.js
 │   ├── handler.js
 │   └── loader.js
 ├── sessions/

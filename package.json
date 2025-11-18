@@ -4,13 +4,15 @@
   "description": "-",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "create": "node ./core/commandGenerator.js"
   },
   "dependencies": {
     "@google/genai": "^1.29.1",
     "axios": "^1.13.2",
     "baileys": "^6.7.21",
     "chalk": "^4.1.2",
+    "inquirer": "^8.2.7",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
     "qrcode-terminal": "^0.12.0"
