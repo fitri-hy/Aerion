@@ -1,63 +1,62 @@
 const fs = require('fs');
 const path = require('path');
-const config = require('../config/app.config');
 
-const watchFolders = ['commands', 'config'];
 let commands = {};
 const watchers = {};
 
 function loadCommands(logLoad = true) {
-    commands = {};
+  commands = {};
 
-    for (const folder of watchFolders) {
-        const folderPath = path.join(__dirname, `../${folder}`);
-        if (!fs.existsSync(folderPath)) continue;
+  const commandsFolder = path.join(__dirname, '../commands');
+  if (!fs.existsSync(commandsFolder)) return commands;
 
-        const files = fs.readdirSync(folderPath).filter(f => f.endsWith('.js'));
+  const files = fs.readdirSync(commandsFolder).filter(f => f.endsWith('.js'));
 
-        for (const file of files) {
-            const fullPath = path.join(folderPath, file);
-            delete require.cache[require.resolve(fullPath)];
-            const cmd = require(fullPath);
+  for (const file of files) {
+    const fullPath = path.join(commandsFolder, file);
+    delete require.cache[require.resolve(fullPath)];
+    const cmd = require(fullPath);
 
-            const key = folder === 'commands' ? cmd.name : path.basename(file, '.js');
-            commands[key] = cmd;
-        }
+    const key = cmd.name || path.basename(file, '.js');
+    commands[key] = cmd;
+  }
 
-        if (logLoad && config.logger.logCommands) {
-            console.log(`Loaded ${folder}: ${files.map(f => f.replace('.js','')).join(', ')}`);
-        }
-    }
+  if (logLoad) {
+    console.log(`Commands loaded: ${files.map(f => f.replace('.js', '')).join(', ')}`);
+  }
 
-    return commands;
+  return commands;
 }
 
-loadCommands(true);
+function watchCommands() {
+  const commandsFolder = path.join(__dirname, '../commands');
+  if (!fs.existsSync(commandsFolder)) return;
 
-setTimeout(() => {
-    for (const folder of watchFolders) {
-        const folderPath = path.join(__dirname, `../${folder}`);
-        if (!fs.existsSync(folderPath)) continue;
+  fs.readdir(commandsFolder, (err, files) => {
+    if (err) return;
 
-        fs.watch(folderPath, (eventType, filename) => {
-            if (!filename || !filename.endsWith('.js')) return;
+    files.filter(f => f.endsWith('.js')).forEach(file => {
+      const fullPath = path.join(commandsFolder, file);
+      if (watchers[fullPath]) return;
 
-            const key = `${folder}/${filename}`;
-            if (watchers[key]) clearTimeout(watchers[key]);
+      watchers[fullPath] = fs.watchFile(fullPath, { interval: 200 }, () => {
+        console.log(`Change detected in ${file}, reloading commands...`);
+        loadCommands(false);
+      });
+    });
+  });
+}
 
-            watchers[key] = setTimeout(() => {
-                if (config.logger.logCommands) {
-                    console.log(`Detected change in ${folder}: ${filename}. Reloading...`);
-                }
-                loadCommands(false);
-                delete watchers[key];
-            }, 100);
-        });
-    }
-}, 500);
+function initLoader() {
+  loadCommands(true);
+
+  setTimeout(() => {
+    watchCommands();
+  }, 500);
+}
 
 function getCommands() {
-    return commands;
+  return commands;
 }
 
-module.exports = { loadCommands, getCommands };
+module.exports = { initLoader, getCommands };

@@ -7,6 +7,7 @@ module.exports = {
 		'6280987654321'
 	],
     bot: {
+        selfMode: false,							// Enable/disable Self mode
         withTyping: true,							// Enable/disable typing status
         ctxInfo: {
             title: '꧁✦AERION✦꧂',				// Title shown in context message

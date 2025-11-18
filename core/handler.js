@@ -48,14 +48,15 @@ async function handleMessage(client, commands, msg) {
 
         if (command.name === commandName) {
 
-            const context = command.context || globalContext;
-            if (context !== 'both' && context !== chatType) {
-                if (config.logger.logCommands) {
-                    const senderName = msg.pushName || (msg.key.participant || msg.key.remoteJid.split('@')[0]);
-                    console.log(`Command ${commandName} cannot be used in ${chatType} by ${senderName}`);
-                }
-                break;
-            }
+			const context = command.context || config.features.contextAware || 'both';
+
+			if (context !== 'both' && context !== chatType) {
+				if (config.logger.logCommands) {
+					const senderName = msg.pushName || (msg.key.participant || msg.key.remoteJid.split('@')[0]);
+					console.log(`Command ${commandName} cannot be used in ${chatType} by ${senderName}`);
+				}
+				break;
+			}
 			
 			let userId = msg.key.participant || msg.key.remoteJid;
 			if (userId.includes('@')) userId = userId.split('@')[0];
