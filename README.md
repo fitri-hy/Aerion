@@ -72,6 +72,7 @@ npm run create
 
 ```
 Aerion/
+├── assets/
 ├── commands/
 │   ├── audio.js
 │   ├── contact.js
@@ -87,8 +88,9 @@ Aerion/
 ├── config/
 │   └── app.config.js
 ├── middlewares/
+│   ├── aclMiddleware.js
 │   ├── adminMiddleware.js
-│   └── cppldownMiddleware.js
+│   └── cooldownMiddleware.js
 ├── core/
 │   ├── client.js
 │   ├── commandGenerator.js
