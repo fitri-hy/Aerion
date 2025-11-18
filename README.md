@@ -6,20 +6,35 @@ Aerion is a WhatsApp bot built using Node.js. This bot can **automatically respo
 
 ## 🚀 Key Features
 
-* Multi & Custom Prefix
-* QR Pairing / Code Pairing
-* Session Folder Management
-* Typing Effect when sending messages
-* Custom Context Info (thumbnail, title, body, media type)
-* Logging of messages, commands, and events
-* Full Event Management (chat updates, contact updates, message reactions, etc.)
-* Auto Watch Commands
-* Admin Roles
-* Access Control List
+* Custom Prefix Commands
+* QR/Pairing Code Login
+* Custom Session
+* Admin Roles System
 * Self Mode
-* Context Aware Types
-* Cooldown System
-* Command Scaffold Generator
+* Typing Simulation
+* Command Access Control
+* Context Info
+* Log Level Control
+* Pretty Logger
+* Show Executed Commands
+* Log Incoming Messages
+* History Sync Event
+* New Message Event
+* Message Update Event
+* Label Association Event
+* Label Edit Event
+* Call Event
+* Message Receipt Event
+* Message Reaction Event
+* Presence Update Event
+* Chat Update Event
+* Contact Update Event
+* Chat Delete Event
+* Poll Aggregation
+* History Sync & Placeholder Resync
+* Placeholder Message Handling
+* Command Cooldown (Anti-Spam Protection)
+* Context-Aware Mode (Private / Group / Both)
 
 ## 💬 Supported Message Types
 
