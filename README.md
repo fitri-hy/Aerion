@@ -2,13 +2,13 @@
 
 # Aerion
 
-Aerion is a WhatsApp bot built using Node.js. This bot can **automatically respond to messages, execute commands**, and assist with various tasks on WhatsApp.
+Aerion is a powerful WhatsApp bot built with Node.js. It can automatically respond to messages, execute custom commands, and handle various events on WhatsApp. Aerion supports plugins, advanced logging, user and session management, context-aware commands, and anti-spam protections, making it highly customizable and suitable for both personal and group chats. With Aerion, you can automate tasks, monitor chats, and extend functionality through custom commands or plugins.
 
 ---
 
 ## 🚀 Key Features
 
-####Command & Plugin System
+#### Command & Plugin System
 
 * Command System
 * Plugin System
