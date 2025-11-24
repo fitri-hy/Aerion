@@ -136,7 +136,7 @@ Supported Key List
 | **video** | `mediaType: "video"` | Sends video. |
 | **ctxInfo** | `ctxInfo: true` | Sends custom context info. |
 
-> Examples: [webhook.js](./plugins/webhook.js)
+> Examples: [text.js](./commands/text.js)
 
 #### Plugin
 
@@ -189,7 +189,7 @@ List of Supported Events
 | **poll.update** | Poll updates. |
 | **group.update** | Group info changes. |
 
-> Examples: [text.js](./commands/text.js)
+> Examples: [webhook.js](./plugins/webhook.js)
 
 ---
 
