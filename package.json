@@ -12,6 +12,8 @@
     "axios": "^1.13.2",
     "baileys": "^6.7.21",
     "chalk": "^4.1.2",
+    "chokidar": "^4.0.3",
+    "express": "^5.1.0",
     "inquirer": "^8.2.7",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
