@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "create": "node ./core/commandGenerator.js"
+    "cc": "node ./core/commandGenerator.js",
+    "cp": "node ./core/pluginGenerator.js"
   },
   "dependencies": {
     "@google/genai": "^1.29.1",

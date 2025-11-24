@@ -72,10 +72,18 @@ npm start
 
 ---
 
-## 📦 Create Command Template
+## 📦 Create Template
+
+#### Command 
 
 ```
-npm run create
+npm run cc
+```
+
+#### Plugin 
+
+```
+npm run cp
 ```
 
 ---
