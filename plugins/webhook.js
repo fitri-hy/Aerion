@@ -11,7 +11,7 @@
 | **ctxInfo**    | `ctxInfo: true`                                        | Send custom context info                     |
 | **other**      | `{...otherPayload}`                                    | Any other WA payload                         |
 
-Examples:
+Examples: POST http://localhost:5050/webhook
 ```
 {
   "number": "628XXXXXXXX",
