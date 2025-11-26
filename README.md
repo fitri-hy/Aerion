@@ -218,6 +218,7 @@ List of Supported Events
 
 > Examples: [webhook.js](./plugins/webhook.js)
 
+<!--
 ---
 
 ## 📁 Project Structure
@@ -225,6 +226,10 @@ List of Supported Events
 ```
 Aerion/
 ├── assets/
+├── cli/
+│   ├── clone.js
+│   ├── command.js
+│   └── plugin.js
 ├── commands/
 │   ├── audio.js
 │   ├── contact.js
@@ -248,10 +253,8 @@ Aerion/
 │   └── cooldownMiddleware.js
 ├── core/
 │   ├── client.js
-│   ├── commandGenerator.js
 │   ├── handler.js
-│   ├── pluginLoader.js
-│   └── commandLoader.js
+│   └── pluginLoader.js
 ├── sessions/
 ├── utils/
 │   ├── contextInfo.js
@@ -259,3 +262,4 @@ Aerion/
 ├── index.js
 └── package.json
 ```
+-->
