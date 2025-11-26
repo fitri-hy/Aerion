@@ -31,105 +31,89 @@ function getChatType(jid) {
 async function handleMessage(client, commands, msg) {
     if (!msg.message) return;
 
-    const text = msg.message?.conversation 
-        || msg.message?.extendedTextMessage?.text;
+    const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
     if (!text) return;
-	
+
     const chatType = getChatType(msg.key.remoteJid);
     const defaultContext = config.features.contextAware || 'both';
 
-    for (const key in commands) {
-        const command = commands[key];
+    for (const command of commands.values()) {
         const prefixUsed = getPrefix(text, command);
         if (!prefixUsed) continue;
 
         const args = text.slice(prefixUsed.length).trim().split(/ +/);
         const commandName = args.shift().toLowerCase();
 
-        if (command.name === commandName) {
+        if (command.name !== commandName) continue;
 
-			const context = command.context || config.features.contextAware || 'both';
-
-			if (context !== 'both' && context !== chatType) {
-				if (config.logger.logCommands) {
-					const senderName = msg.pushName || (msg.key.participant || msg.key.remoteJid.split('@')[0]);
-					console.log(`Command ${commandName} cannot be used in ${chatType} by ${senderName}`);
-				}
-				break;
-			}
-			
-			let userId = msg.key.participant || msg.key.remoteJid;
-			if (userId.includes('@')) userId = userId.split('@')[0];
-	
-			if (command.admin && !isAdmin(msg)) {
-				if (config.logger.logCommands) {
-					console.log('Non-admin tries to run command:', commandName);
-				}
-				break;
-			}
-		
-			if (config.features.cooldown.enabled) {
-				const { checkCooldown, setCooldown, sendCooldownMessage } = require('../middlewares/cooldownMiddleware');
-				const remaining = checkCooldown(userId, commandName);
-				if (remaining > 0) {
-					if (config.logger.logCommands) {
-						const remainingSec = Math.ceil(remaining / 1000);
-						const userId = msg.key.participant || msg.key.remoteJid.split('@')[0];
-						const senderName = msg.pushName || userId;
-						console.log(`${senderName} Hit by cooldown: ${remainingSec}`);
-					}
-					break;
-				}
-				setCooldown(userId, commandName, config.features.cooldown.duration);
-			}
-			
-            try {
-                msg.send = async (message) => {
-                    const options = {};
-
-                    if (message.quote === true) options.quoted = msg;
-
-                    if (message.ctxInfo === true) {
-                        message.contextInfo = defaultContextInfo(config.bot.ctxInfo);
-                    }
-
-                    if (message.react) {
-                        try {
-                            await client.sendMessage(msg.key.remoteJid, {
-                                react: {
-                                    text: message.react,
-                                    key: msg.key
-                                }
-                            });
-                        } catch (e) {
-                            console.error('Failed to send react:', e);
-                        }
-                        if (!message.text && !message.caption) return;
-                    }
-
-                    if (message.mediaType && message.source) {
-                        const media = await resolveMedia(message.mediaType, message.source);
-                        await client.sendMessageOptionalTyping(
-                            msg.key.remoteJid,
-                            { ...media, caption: message.caption || '', ...message },
-                            options
-                        );
-                    } else {
-                        await client.sendMessageOptionalTyping(
-                            msg.key.remoteJid,
-                            message,
-                            options
-                        );
-                    }
-                };
-
-                await command.execute(client, msg, args);
-            } catch (e) {
-                console.error(e);
+        const context = command.context || defaultContext;
+        if (context !== 'both' && context !== chatType) {
+            if (config.logger.logCommands) {
+                const senderName = msg.pushName || (msg.key.participant || msg.key.remoteJid.split('@')[0]);
+                console.log(`Command ${commandName} cannot be used in ${chatType} by ${senderName}`);
             }
-
             break;
         }
+
+        let userId = msg.key.participant || msg.key.remoteJid;
+        if (userId.includes('@')) userId = userId.split('@')[0];
+        if (command.admin && !isAdmin(msg)) {
+            if (config.logger.logCommands) {
+                console.log('Non-admin tries to run command:', commandName);
+            }
+            break;
+        }
+
+        if (config.features.cooldown.enabled) {
+            const remaining = checkCooldown(userId, commandName);
+            if (remaining > 0) {
+                if (config.logger.logCommands) {
+                    const remainingSec = Math.ceil(remaining / 1000);
+                    const senderName = msg.pushName || userId;
+                    console.log(`${senderName} hit cooldown: ${remainingSec}s`);
+                }
+                sendCooldownMessage && sendCooldownMessage(client, msg, remaining);
+                break;
+            }
+            setCooldown(userId, commandName, config.features.cooldown.duration);
+        }
+
+        try {
+            msg.send = async (message) => {
+                const options = {};
+
+                if (message.quote === true) options.quoted = msg;
+                if (message.ctxInfo === true) message.contextInfo = defaultContextInfo(config.bot.ctxInfo);
+
+                if (message.react) {
+                    try {
+                        await client.sendMessage(msg.key.remoteJid, {
+                            react: { text: message.react, key: msg.key }
+                        });
+                    } catch (e) {
+                        console.error('Failed to send react:', e);
+                    }
+                    if (!message.text && !message.caption) return;
+                }
+
+                if (message.mediaType && message.source) {
+                    const media = await resolveMedia(message.mediaType, message.source);
+                    await client.sendMessageOptionalTyping(
+                        msg.key.remoteJid,
+                        { ...media, caption: message.caption || '', ...message },
+                        options
+                    );
+                } else {
+                    await client.sendMessageOptionalTyping(msg.key.remoteJid, message, options);
+                }
+            };
+
+            await command.execute(client, msg, args);
+        } catch (err) {
+            console.error(`Error executing command ${commandName}:`, err);
+        }
+
+        break;
     }
 }
 

@@ -1,32 +1,32 @@
-const fs = require('fs');
 const path = require('path');
 const chokidar = require('chokidar');
+const glob = require('glob');
 
-let plugins = {};
+let plugins = new Map();
 let watcher = null;
 
 function loadPlugins(logLoad = true) {
-    plugins = {};
+    plugins.clear();
 
     const pluginsFolder = path.join(__dirname, '../plugins');
-    if (!fs.existsSync(pluginsFolder)) return plugins;
-
-    const files = fs.readdirSync(pluginsFolder).filter(f => f.endsWith('.js'));
+    const files = glob.sync(`${pluginsFolder}/**/*.js`);
 
     for (const file of files) {
-        const fullPath = path.join(pluginsFolder, file);
+        try {
+            const fullPath = path.resolve(file);
+            delete require.cache[require.resolve(fullPath)];
+            const plg = require(fullPath);
 
-        delete require.cache[require.resolve(fullPath)];
-        const plg = require(fullPath);
-
-        const key = plg.name || path.basename(file, '.js');
-        if (!Array.isArray(plg.events)) plg.events = [];
-
-        plugins[key] = plg;
+            if (!Array.isArray(plg.events)) plg.events = [];
+            const key = plg.name || path.relative(pluginsFolder, file).replace(/\\/g, '/').replace('.js', '');
+            plugins.set(key, plg);
+        } catch (err) {
+            console.error(`Failed to load plugin at ${file}:`, err);
+        }
     }
 
     if (logLoad) {
-        console.log(`Plugins loaded: ${files.map(f => f.replace('.js', '')).join(', ')}`);
+        console.log(`Plugins loaded: ${[...plugins.keys()].join(', ')}`);
     }
 
     return plugins;
@@ -34,32 +34,38 @@ function loadPlugins(logLoad = true) {
 
 function watchPlugins() {
     const pluginsFolder = path.join(__dirname, '../plugins');
-    if (!fs.existsSync(pluginsFolder)) return;
-
     if (watcher) return;
 
-    watcher = chokidar.watch(`${pluginsFolder}/*.js`, {
+    watcher = chokidar.watch(`${pluginsFolder}/**/*.js`, {
         ignoreInitial: true,
         persistent: true,
-        depth: 1
     });
 
+    const updatePlugin = (filePath, action) => {
+        const key = path.relative(pluginsFolder, filePath).replace(/\\/g, '/').replace('.js', '');
+        try {
+            if (action === 'unlink') {
+                if (plugins.has(key)) {
+                    plugins.delete(key);
+                    console.log(`Plugin removed: ${key}`);
+                }
+            } else {
+                const fullPath = path.resolve(filePath);
+                delete require.cache[require.resolve(fullPath)];
+                const plg = require(fullPath);
+                if (!Array.isArray(plg.events)) plg.events = [];
+                plugins.set(plg.name || key, plg);
+                console.log(`${action === 'add' ? 'New' : 'Updated'} plugin: ${plg.name || key}`);
+            }
+        } catch (err) {
+            console.error(`Failed to ${action} plugin at ${filePath}:`, err);
+        }
+    };
+
     watcher
-        .on('change', filePath => {
-            const fileName = path.basename(filePath);
-            console.log(`Change detected in ${fileName}, reloading plugins...`);
-            loadPlugins(false);
-        })
-        .on('add', filePath => {
-            const fileName = path.basename(filePath);
-            console.log(`Plugin added: ${fileName}`);
-            loadPlugins(false);
-        })
-        .on('unlink', filePath => {
-            const fileName = path.basename(filePath);
-            console.log(`Plugin removed: ${fileName}`);
-            loadPlugins(false);
-        });
+        .on('add', filePath => updatePlugin(filePath, 'add'))
+        .on('change', filePath => updatePlugin(filePath, 'change'))
+        .on('unlink', filePath => updatePlugin(filePath, 'unlink'));
 }
 
 function initPluginLoader() {

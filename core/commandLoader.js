@@ -1,30 +1,31 @@
-const fs = require('fs');
 const path = require('path');
 const chokidar = require('chokidar');
+const glob = require('glob');
 
-let commands = {};
+let commands = new Map();
 let watcher = null;
 
 function loadCommands(logLoad = true) {
-    commands = {};
+    commands.clear();
 
     const commandsFolder = path.join(__dirname, '../commands');
-    if (!fs.existsSync(commandsFolder)) return commands;
-
-    const files = fs.readdirSync(commandsFolder).filter(f => f.endsWith('.js'));
+    const files = glob.sync(`${commandsFolder}/**/*.js`);
 
     for (const file of files) {
-        const fullPath = path.join(commandsFolder, file);
+        try {
+            const fullPath = path.resolve(file);
+            delete require.cache[require.resolve(fullPath)];
+            const cmd = require(fullPath);
 
-        delete require.cache[require.resolve(fullPath)];
-        const cmd = require(fullPath);
-
-        const key = cmd.name || path.basename(file, '.js');
-        commands[key] = cmd;
+            const key = cmd.name || path.relative(commandsFolder, file).replace(/\\/g, '/').replace('.js', '');
+            commands.set(key, cmd);
+        } catch (err) {
+            console.error(`Failed to load command at ${file}:`, err);
+        }
     }
 
     if (logLoad) {
-        console.log(`Commands loaded: ${files.map(f => f.replace('.js', '')).join(', ')}`);
+        console.log(`Commands loaded: ${[...commands.keys()].join(', ')}`);
     }
 
     return commands;
@@ -32,32 +33,37 @@ function loadCommands(logLoad = true) {
 
 function watchCommands() {
     const commandsFolder = path.join(__dirname, '../commands');
-    if (!fs.existsSync(commandsFolder)) return;
-
     if (watcher) return;
 
-    watcher = chokidar.watch(`${commandsFolder}/*.js`, {
+    watcher = chokidar.watch(`${commandsFolder}/**/*.js`, {
         ignoreInitial: true,
         persistent: true,
-        depth: 1
     });
 
+    const updateCommand = (filePath, action) => {
+        const key = path.relative(commandsFolder, filePath).replace(/\\/g, '/').replace('.js', '');
+        try {
+            if (action === 'unlink') {
+                if (commands.has(key)) {
+                    commands.delete(key);
+                    console.log(`Command removed: ${key}`);
+                }
+            } else {
+                const fullPath = path.resolve(filePath);
+                delete require.cache[require.resolve(fullPath)];
+                const cmd = require(fullPath);
+                commands.set(cmd.name || key, cmd);
+                console.log(`${action === 'add' ? 'New' : 'Updated'} command: ${cmd.name || key}`);
+            }
+        } catch (err) {
+            console.error(`Failed to ${action} command at ${filePath}:`, err);
+        }
+    };
+
     watcher
-        .on('change', filePath => {
-            const fileName = path.basename(filePath);
-            console.log(`Change detected in ${fileName}, reloading commands...`);
-            loadCommands(false);
-        })
-        .on('add', filePath => {
-            const fileName = path.basename(filePath);
-            console.log(`New command added: ${fileName}`);
-            loadCommands(false);
-        })
-        .on('unlink', filePath => {
-            const fileName = path.basename(filePath);
-            console.log(`Command removed: ${fileName}`);
-            loadCommands(false);
-        });
+        .on('add', filePath => updateCommand(filePath, 'add'))
+        .on('change', filePath => updateCommand(filePath, 'change'))
+        .on('unlink', filePath => updateCommand(filePath, 'unlink'));
 }
 
 function initLoader() {

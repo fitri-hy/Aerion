@@ -13,14 +13,13 @@ const { checkACL } = require('./middlewares/aclMiddleware');
 
         const client = await createClient();
 
-        const plugins = getPlugins();
-        for (const p of Object.values(plugins)) {
-            if (typeof p.execute === "function") {
+        for (const plugin of getPlugins().values()) {
+            if (typeof plugin.execute === "function") {
                 try {
-                    await p.execute(client);
-                    console.log(`Plugin executed: ${p.name}`);
+                    await plugin.execute(client);
+                    console.log(`Plugin executed: ${plugin.name}`);
                 } catch (err) {
-                    console.error(`Error executing plugin ${p.name}:`, err);
+                    console.error(`Error executing plugin ${plugin.name}:`, err);
                 }
             }
         }
@@ -32,15 +31,21 @@ const { checkACL } = require('./middlewares/aclMiddleware');
             if (config.bot.selfMode && !isAdmin(msg)) return;
             if (!checkACL(msg)) return;
 
-            for (const p of Object.values(getPlugins())) {
-                if (typeof p.onMessage === "function") {
-                    try { p.onMessage(msg, client); } catch {}
+            for (const plugin of getPlugins().values()) {
+                if (typeof plugin.onMessage === "function") {
+                    try { 
+                        await plugin.onMessage(msg, client); 
+                    } catch (err) {
+                        console.error(`Error in plugin onMessage ${plugin.name}:`, err);
+                    }
                 }
             }
 
             const commands = getCommands();
             await handleMessage(client, commands, msg);
         });
+
+        console.log('Bot is running...');
     } catch (error) {
         console.error("Failed to start bot:", error);
     }
