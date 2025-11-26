@@ -17,6 +17,7 @@ Aerion is a powerful WhatsApp bot built with Node.js. It can automatically respo
 * Command Cooldown (Anti-Spam Protection)
 * Context-Aware Mode (Private / Group / Both)
 * Show Executed Commands
+* CLI Command
 
 #### User & Session Management
 
@@ -83,18 +84,25 @@ npm start
 
 ---
 
-## 📦 Create Template
+## 📦 CLI
 
-#### Command 
+#### Create Command Template 
 
 ```
 npm run cc
 ```
 
-#### Plugin 
+#### Create Plugin Template  
 
 ```
 npm run cp
+```
+
+#### Clone Command/Plugin
+
+```
+npm run clone plugin <url>
+npm run clone command <url>
 ```
 
 ---

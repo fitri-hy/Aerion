@@ -1,15 +1,15 @@
 {
   "name": "Aerion",
   "version": "1.0.0",
-  "description": "-",
+  "description": "Aerion is a Node.js based WhatsApp bot Starter Kit that can automatically respond to messages and execute commands.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "cc": "node ./core/commandGenerator.js",
-    "cp": "node ./core/pluginGenerator.js"
+    "cc": "node ./cli/command.js",
+    "cp": "node ./cli/plugin.js",
+    "clone": "node ./cli/clone.js"
   },
   "dependencies": {
-    "@google/genai": "^1.29.1",
     "axios": "^1.13.2",
     "baileys": "^6.7.21",
     "chalk": "^4.1.2",
