@@ -1,4 +1,4 @@
-<center><img src="./assets/aerion.jpg"/></center>
+<center><img src="./assets/aerion.png"/></center>
 
 # Aerion
 
