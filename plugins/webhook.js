@@ -28,7 +28,7 @@ module.exports = {
     name: "Webhook",
     events: ["init"],
 
-    async execute(client) {
+    async execute(client, ...args) {
 
         const PORT = 5050;
 

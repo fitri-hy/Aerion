@@ -89,7 +89,7 @@ module.exports = {
     name: '${name}',
     events: [${events.map(e => `'${e}'`).join(', ')}],
 
-    async execute(client, event, data) {
+    async execute(client, ...args) {
         console.log('Plugin "${name}" triggered by event:', event);
         // Add your plugin logic here
     }

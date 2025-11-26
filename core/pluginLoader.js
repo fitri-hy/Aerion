@@ -42,20 +42,23 @@ function watchPlugins() {
     });
 
     const updatePlugin = (filePath, action) => {
-        const key = path.relative(pluginsFolder, filePath).replace(/\\/g, '/').replace('.js', '');
+        const relativeKey = path.relative(pluginsFolder, filePath).replace(/\\/g, '/').replace('.js', '');
         try {
             if (action === 'unlink') {
-                if (plugins.has(key)) {
-                    plugins.delete(key);
-                    console.log(`Plugin removed: ${key}`);
+                if (plugins.has(relativeKey)) {
+                    plugins.delete(relativeKey);
+                    console.log(`Plugin removed: ${relativeKey}`);
                 }
             } else {
                 const fullPath = path.resolve(filePath);
                 delete require.cache[require.resolve(fullPath)];
                 const plg = require(fullPath);
                 if (!Array.isArray(plg.events)) plg.events = [];
-                plugins.set(plg.name || key, plg);
-                console.log(`${action === 'add' ? 'New' : 'Updated'} plugin: ${plg.name || key}`);
+
+                const key = plg.name || relativeKey;
+                plugins.set(key, plg);
+
+                console.log(`${action === 'add' ? 'New' : 'Updated'} plugin: ${key}`);
             }
         } catch (err) {
             console.error(`Failed to ${action} plugin at ${filePath}:`, err);

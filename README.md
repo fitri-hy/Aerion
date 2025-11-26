@@ -172,7 +172,7 @@ module.exports = {
   name: "PluginName",
   events: [...],
 
-  async execute(client, event, data) {
+  async execute(client, ...args) {
     // plugin logic
   }
 }
@@ -180,11 +180,11 @@ module.exports = {
 
 Plugin Properties
 
-| Property | Type | Required | Description |
-| -------------------------------- | ------------- | ----- | ------------------------------------------- |
-| **name** | string | ✔️ | Plugin name (default = filename). |
-| **events** | array<string> | ✔️ | List of events the plugin listens for. |
-| **execute(client, event, data)** | function | ✔️ | Function to execute when the event occurs. |
+| Property                           | Type          | Required | Description                                                                                    |
+| ---------------------------------- | ------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| **name**                           | string        | ✔️       | Plugin name (default = filename if not provided).                                              |
+| **events**                         | array<string> | ✔️       | List of events the plugin listens for, e.g., `["init", "messages.upsert", "messages.update"]`.                    |
+| **async execute(client, ...args)** | function      | ✔️       | Function that is executed when any of the listed events occurs. Arguments depend on the event: |
 
 List of Supported Events
 
@@ -230,6 +230,7 @@ Aerion/
 │   ├── text.js
 │   └── video.js
 ├── plugins/
+│   ├── autoResponder.js
 │   └── webhook.js
 ├── config/
 │   └── app.config.js

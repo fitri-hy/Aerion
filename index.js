@@ -12,9 +12,10 @@ const { checkACL } = require('./middlewares/aclMiddleware');
         initPluginLoader();
 
         const client = await createClient();
+        const plugins = getPlugins();
 
-        for (const plugin of getPlugins().values()) {
-            if (typeof plugin.execute === "function") {
+        for (const plugin of plugins.values()) {
+            if (plugin.events.includes("init") && typeof plugin.execute === "function") {
                 try {
                     await plugin.execute(client);
                     console.log(`Plugin executed: ${plugin.name}`);
@@ -24,28 +25,42 @@ const { checkACL } = require('./middlewares/aclMiddleware');
             }
         }
 
-        client.ev.on('messages.upsert', async (m) => {
-            const msg = m.messages[0];
+        const supportedEvents = [
+            "messages.upsert", "messages.update", "messages.delete",
+            "presence.update", "connection.update", "contacts.update",
+            "chats.update", "chats.delete", "labels.association",
+            "labels.edit", "call", "message-receipt.update",
+            "reaction.update", "history.sync", "poll.update", "group.update"
+        ];
 
-            if (msg.key.fromMe && !config.bot.selfMode) return;
-            if (config.bot.selfMode && !isAdmin(msg)) return;
-            if (!checkACL(msg)) return;
-
-            for (const plugin of getPlugins().values()) {
-                if (typeof plugin.onMessage === "function") {
-                    try { 
-                        await plugin.onMessage(msg, client); 
-                    } catch (err) {
-                        console.error(`Error in plugin onMessage ${plugin.name}:`, err);
+        for (const eventName of supportedEvents) {
+            client.ev.on(eventName, async (...args) => {
+                for (const plugin of plugins.values()) {
+                    if (plugin.events.includes(eventName) && typeof plugin.execute === "function") {
+                        try {
+                            await plugin.execute(client, ...args);
+                        } catch (err) {
+                            console.error(`Error in plugin ${plugin.name} for event ${eventName}:`, err);
+                        }
                     }
                 }
-            }
 
-            const commands = getCommands();
-            await handleMessage(client, commands, msg);
-        });
+                if (eventName === "messages.upsert") {
+                    const m = args[0];
+                    if (!m || !m.messages || !m.messages[0]) return;
+                    const msg = m.messages[0];
+                    if (!msg.message) return;
+                    if (msg.key.fromMe && !config.bot.selfMode) return;
+                    if (config.bot.selfMode && !isAdmin(msg)) return;
+                    if (!checkACL(msg)) return;
 
-        console.log('Bot is running...');
+                    const commands = getCommands();
+                    await handleMessage(client, commands, msg);
+                }
+            });
+        }
+
+        console.log('Bot is running and listening to all supported events...');
     } catch (error) {
         console.error("Failed to start bot:", error);
     }
