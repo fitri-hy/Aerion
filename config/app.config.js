@@ -17,7 +17,7 @@ module.exports = {
         ctxInfo: {
             title: '꧁✦AERION✦꧂',				// Title shown in context message
             body: 'Welcome to WhatsApp Bot!',		// Body text in context message
-            thumbnailPath: './assets/aerion.jpg',	// Relative path to thumbnail image
+            thumbnailPath: './assets/aerion.png',	// Relative path to thumbnail image
             sourceUrl: 'https://fhylabs.com',		// URL shown when media is clicked
             mediaType: 1,							// 1 = image, 2 = video in context info
             renderLargerThumbnail: false,			// Show larger thumbnail for media
